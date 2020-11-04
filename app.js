@@ -7,7 +7,6 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 
-
 // Passport Config
 require('./config/passport')(passport);
 
@@ -24,8 +23,6 @@ app.use(
       saveUninitialized: true
     })
   );
-  
-
   
 // Passport middleware
 app.use(passport.initialize());

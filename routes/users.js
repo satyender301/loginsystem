@@ -5,9 +5,8 @@ var path = require('path')
 var flash = require('connect-flash');
 const session = require('express-session'); 
 
-
-
 const bcrypt = require('bcryptjs');
+
 const passport = require('passport');
 
 
@@ -79,6 +78,10 @@ router.post('/register', encoder,function(req, res, next) {
             password
           });
 
+          bcrypt.genSalt(10, (err, salt) => {
+            bcrypt.hash(newUser.password, salt, (err, hash) => {
+              if (err) throw err;
+              newUser.password = hash;
               newUser
                 .save()
                 .then(user => {
@@ -86,8 +89,8 @@ router.post('/register', encoder,function(req, res, next) {
                   res.redirect('/users/login');
                 })
                 .catch(err => console.log(err));
-           
-          
+            });
+          });
         }
 
 
@@ -95,59 +98,35 @@ router.post('/register', encoder,function(req, res, next) {
     }
   });
 
-//  // Login
-//  router.post('/login', (req, res, next) => {
-//   // passport.authenticate('local', {successRedirect: '/dashboard',failureRedirect: '/users/login',failureFlash: true})(req, res, next);
+//   Login
+ router.post('/login', (req, res, next) => {
+   passport.authenticate('local', 
+   {successRedirect: '/dashboard',
+   failureRedirect: '/users/login',
+   failureFlash: true})(req, res, next);
+  });
 
-      
-//   });
-
-//  router.post('/login', (req, res, next) => {
-//    User.findOne({email: req.body.email}) 
-//        .then(user => {
-//          if (user && user.password === req.body.password){
-//            console.log(req.body.email)
-//            //res.locals.redirect = `dashboard`;
-//            res.render('dashboard')
-//            req.flash("success", `${user.fullName}'s logged in successfully!`);
-//            res.locals.user = user;
-//            next();
-//      } else {
-//        req.flash("error", "Your account or password is incorrect. Please try again or contact your system administrator!");
-//               res.locals.redirect = "/users/login";
-//        next();
-//      }
-//    })
-//        .catch(error => {
-//          console.log(`Error logging in user: ${error.message}`);
-//          next(error);
+// router.post('/login', (req, res, next) => {
+//   User.findOne({
+//     email: req.body.email
+//   })
+//       .then(user => {
+//         if (user && user.password === req.body.password){
+//           res.locals.redirect = `dashboard`;
+//           req.flash("success", `${user.fullName}'s logged in successfully!`);
+//           res.locals.user = user;
+//           next();
+//     } else {
+//       req.flash("error", "Your account or password is incorrect. Please try again or contact your system administrator!");
+//              res.locals.redirect = "/users/login";
+//       next();
+//     }
+//   })
+//       .catch(error => {
+//         console.log(`Error logging in user: ${error.message}`);
+//         next(error);
 //       });
 // });
-
-
-  router.post('/login',encoder, (req, res, next) => {
-    var email = req.body.email;
-    var password = req.body.password;
-
-    User.findOne({email: req.body.email}, function(err, data){
-      if (err) return console.log(err)
-        
-
-         if (data ){
-
-              if(data.password== req.body.password){
-                     res.render('dashboard')
-               }else{
-                 console.log("Invalid Password")
-               }
-         } else{
-          console.log("email not registered")
-         }
-    }) 
-        next();
-
-     });
-
 
 module.exports = router;
 
